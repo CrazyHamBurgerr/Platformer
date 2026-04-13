@@ -41,7 +41,16 @@ class PhysicsEntity:
                     entity_rect.top = rect.bottom
                     self.collisions['up'] = True
                 self.pos[1] = entity_rect.y
-
+        
+        self.velocity[0] = min(self.velocity[0]+movement[0]*0.5, 2)
+        self.velocity[0] = max(self.velocity[0], -2)
+        if self.velocity[0] > 0.1:
+            self.velocity[0] -= 0.1
+        if self.velocity[0] < -0.1:
+            self.velocity[0] += 0.1
+        if -0.1 <= self.velocity[0] <= 0.1:
+            self.velocity[0] = 0
+        
         if self.collisions['right'] or self.collisions['left']:
             self.velocity[0] = 0
 
