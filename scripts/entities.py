@@ -69,8 +69,10 @@ class PhysicsEntity:
 
         scale_x = 1+abs(self.velocity[0])/20
 
-        scale = scale_y / scale_x
-        offset_x = self.size[0]/4*(scale-1)
-        pygame.draw.rect(surface, (100, 200, 0), pygame.Rect(self.pos[0] - offset_x, self.pos[1], self.size[0] * scale, self.size[1] / scale))
+        scale = scale_y / scale_x 
+        offset_x = (self.size[0] - int(self.size[0]*scale)) / 2
+        offset_y = self.size[1] - int(self.size[1]/scale)
+
+        pygame.draw.rect(surface, (100, 200, 0), pygame.Rect(self.pos[0] + offset_x, self.pos[1] + offset_y, self.size[0] * scale, self.size[1] / scale))
         
         

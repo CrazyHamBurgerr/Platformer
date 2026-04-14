@@ -7,6 +7,7 @@ from scripts.tilemap import Tilemap
 
 class Game:
     def __init__(self):
+        print("started launching game")
         pygame.init()
         
         pygame.display.set_caption("square cubed")
@@ -27,6 +28,7 @@ class Game:
         self.player = PhysicsEntity(self, 'player', (50, 50), (15, 15))
         
         self.tilemap = Tilemap(self, 16)
+        print("game launched")
         
     def run(self):
         while True:
