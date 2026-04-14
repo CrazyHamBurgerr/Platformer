@@ -7,18 +7,19 @@ class PhysicsEntity:
         self.pos = list(pos)
         self.size = list(size)
         self.velocity = [0, 0]
+        self.fall = False
 
     def rect(self):
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
 
     def update(self, tilemap, movement=(0,0)):
         self.collisions = {'up': False, 'down': False, 'left': False, 'right': False}
-
+        
         frame_movement = (movement[0] + self.velocity[0], movement[1] + self.velocity [1])
 
         self.pos[0] += frame_movement[0]
         entity_rect = self.rect()
-
+        
         for rect in tilemap.physics_rects_around(self.pos):
             if entity_rect.colliderect(rect):
                 if frame_movement[0] > 0:
@@ -44,6 +45,7 @@ class PhysicsEntity:
         
         self.velocity[0] = min(self.velocity[0]+movement[0]*0.5, 2)
         self.velocity[0] = max(self.velocity[0], -2)
+
         if self.velocity[0] > 0.1:
             self.velocity[0] -= 0.1
         if self.velocity[0] < -0.1:
@@ -53,11 +55,22 @@ class PhysicsEntity:
         
         if self.collisions['right'] or self.collisions['left']:
             self.velocity[0] = 0
-
-        self.velocity[1] = min(5, self.velocity[1]+0.1)
+        
+        self.velocity[1] = min(7, self.velocity[1]+0.2)
 
         if self.collisions['down'] or self.collisions['up']:
             self.velocity[1] = 0
 
     def render(self, surface):
-        pygame.draw.rect(surface, (100, 200, 0), pygame.Rect(*self.pos, *self.size))
+        if abs(self.velocity[1]) > 0.61:
+            scale_y = 1+abs(self.velocity[1])/40
+        else:
+            scale_y = 1
+
+        scale_x = 1+abs(self.velocity[0])/20
+
+        scale = scale_y / scale_x
+        offset_x = self.size[0]/4*(scale-1)
+        pygame.draw.rect(surface, (100, 200, 0), pygame.Rect(self.pos[0] - offset_x, self.pos[1], self.size[0] * scale, self.size[1] / scale))
+        
+        

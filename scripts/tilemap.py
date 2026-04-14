@@ -8,7 +8,7 @@ for i in range(-1, 2):
 PHYSICS_TILES = {'grass', 'stone'} #apparently a set, like a dictionary without values
 
 
-print(NEIGHBOUR_OFFSET) #check for all tiles near position
+# print(NEIGHBOUR_OFFSET) #check for all tiles near position
 
 class Tilemap:
     def __init__(self, game, tile_size=16):
