@@ -7,7 +7,7 @@ class PhysicsEntity:
         self.pos = list(pos)
         self.size = list(size)
         self.velocity = [0, 0]
-        self.fall = False
+        self.jump = False
 
     def rect(self):
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
@@ -60,6 +60,7 @@ class PhysicsEntity:
 
         if self.collisions['down'] or self.collisions['up']:
             self.velocity[1] = 0
+            self.jump = True
 
     def render(self, surface):
         if abs(self.velocity[1]) > 0.61:
