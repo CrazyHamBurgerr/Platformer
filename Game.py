@@ -1,7 +1,7 @@
 import sys
 import pygame
 
-from scripts.entities import PhysicsEntity
+from scripts.entities import PhysicsEntity, Player
 from scripts.utils import load_image, load_images
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
@@ -31,7 +31,7 @@ class Game:
         } #loads assets
 
         print("creating player")
-        self.player = PhysicsEntity(self, 'player', (50, 50), (15, 15))
+        self.player = Player(self, (50, 50), (15, 15))
 
         print("creating clouds")
         self.clouds = Clouds(self.assets['clouds'], 16)
@@ -65,7 +65,9 @@ class Game:
                         self.movement[1] = True
                     if (event.key == pygame.K_z or event.key == pygame.K_UP):
                         self.player.jump_grace = 5
-                        self.player.velocity[1] = -5
+                    if event.key == pygame.K_r:
+                        self.player.pos = [160, 0]
+                        self.player.velocity = [0, 0]
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:

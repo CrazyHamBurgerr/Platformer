@@ -18,11 +18,12 @@ class Tilemap:
         self.offgrid_tiles = []
 
         for i in range(10):
-            self.tilemap['0;' + str(5+i)] = {'type': 'stone', 'variant': 1, 'pos': (0, 5+i)} # dictionary of stone blocks
             self.tilemap['10;' + str(7+i)] = {'type': 'stone', 'variant': 1, 'pos': (10, 7+i)}
             self.tilemap['18;' + str(5+i)] = {'type': 'stone', 'variant': 1, 'pos': (18, 5+i)}
+
         for i in range(20):
             self.tilemap[str(i) + ';10'] = {'type': 'grass', 'variant': 1, 'pos': (i, 10)} # dictionary of grass blocks
+            self.tilemap['0;' + str(-5+i)] = {'type': 'stone', 'variant': 1, 'pos': (0, -5+i)} # dictionary of stone blocks
     
     def tiles_around(self, pos):
         tiles = []
