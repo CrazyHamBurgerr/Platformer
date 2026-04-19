@@ -56,6 +56,7 @@ class Player(PhysicsEntity):
         super().__init__(game, 'player', pos, size)
         
         self.air_time = 0
+        self.friction_time = 0
         self.jump_grace = 0
         self.wall_jump_grace = 0
         self.right_wall= False # is the character on the right wall
@@ -68,20 +69,17 @@ class Player(PhysicsEntity):
             self.velocity[0] += movement[0]*0.2
         elif self.velocity[0] < 1.5 and self.velocity[0] > -1.5:
             self.velocity[0] += movement[0]*0.5
-
-        if self.velocity[0] * movement[0] <= 0 or self.air_time < 4 or abs(self.velocity[0]) > 2: #slows entity if on the ground not holding movement direction for player
-            friction = 0.2
-            if self.velocity[0] > friction:
-                self.velocity[0] -= friction
-            elif self.velocity[0] < -friction:
-                self.velocity[0] += friction
-            else:
-                self.velocity[0] = 0
+        
+        self.friction(movement)
+        
+        if self.jump_grace > 0:
+            self.jump_grace -= 1
+            self.jump(movement)
         
         self.wall_jump_grace -=1
         self.wall_slide = False
         if self.collisions['right'] or self.collisions['left']:
-            self.wall_jump_grace = 10
+            self.wall_jump_grace = 7
             self.velocity[1] = min(1.5, self.velocity[1])
             if self.collisions['right']:
                 self.right_wall= True
@@ -89,29 +87,50 @@ class Player(PhysicsEntity):
                 self.right_wall= False
        
         self.air_time += 1
-        if self.collisions['down']:
+        if self.collisions['down']: #checks if player is grounded and resets air time (important for jump forgiveness) and the ability to dash
             self.air_time = 0
-            self.can_dash = True
+            if self.friction_time < 0:
+                self.can_dash = True
         
-        if self.jump_grace > 0: #determines if player character should jump and if it's a normal or a wall jump
-            self.jump_grace -= 1
-            if self.air_time < 7:
-                self.jump()
-            elif self.wall_jump_grace > 0:
-                self.wall_jump_grace = 0
-                self.velocity[1] = -4.2
-                if self.right_wall:
-                    self.velocity[0] = -4
-                else:
-                    self.velocity[0] = 4
 
-    def jump(self):
-        self.velocity[1] = -5
-        self.jump_grace = 0
-        self.air_time = 7
+    def friction(self, movement): #slows player if on the ground not holding movement direction
+        friction = 0
+        if self.velocity[0] * movement[0] <= 0 or abs(self.velocity[0]) > 20: 
+            friction = 0.2
+        if self.air_time < 4 and self.friction_time < 1:
+            friction = 0.133*abs(self.velocity[0])
+        self.friction_time -= 1
+
+        
+        if self.velocity[0] > friction:
+            self.velocity[0] -= friction
+        elif self.velocity[0] < -friction:
+            self.velocity[0] += friction
+        else:
+            self.velocity[0] = 0
+
+    def jump(self, movement): #determines if player character should jump and if it's a normal or a wall jump
+        if self.air_time < 7:
+            self.velocity[1] = -4.5
+            self.jump_grace = 0
+            self.air_time = 7
+        elif self.wall_jump_grace > 0:
+            self.wall_jump_grace = 0
+            self.velocity[1] = -4.2
+            if self.right_wall:
+                if movement[0] == 1:
+                    self.velocity[0] = -4
+            else:
+                if movement[0] == -1:
+                    self.velocity[0] = 4
+        
     
-    def dash(self):
-        pass
+    def dash(self, move_x, move_y):
+        if self.can_dash and (move_x != 0 or move_y != 0):
+            self.velocity[0] += move_x*3
+            self.velocity[1] = move_y*5
+            self.can_dash = False
+            self.friction_time = 12
 
     def render(self, surface, offset = (0, 0)):
         if abs(self.velocity[1]) > 0.61:
@@ -125,5 +144,8 @@ class Player(PhysicsEntity):
         offset_x = (self.size[0] - int(self.size[0]*scale)) / 2
         offset_y = self.size[1] - int(self.size[1]/scale)
 
-        pygame.draw.rect(surface, (100, 200, 0), pygame.Rect(self.pos[0] + offset_x - offset[0], self.pos[1] + offset_y - offset[1], self.size[0] * scale, self.size[1] / scale))
+        colour = (100, 200, 0)
+        if self.can_dash == False:
+            colour = (70, 140, 0)
+        pygame.draw.rect(surface, colour, pygame.Rect(self.pos[0] + offset_x - offset[0], self.pos[1] + offset_y - offset[1], self.size[0] * scale, self.size[1] / scale))
         

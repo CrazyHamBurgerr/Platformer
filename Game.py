@@ -17,7 +17,8 @@ class Game:
         self.screen = pygame.Surface((320, 240))
 
         self.clock = pygame.time.Clock()
-        self.movement = [False, False]
+        self.movement_x = [False, False]
+        self.movement_y = [False, False]
         self.scroll = [0, 0]
 
         print("loading assets")
@@ -42,8 +43,8 @@ class Game:
     def run(self):
         while True:
 
-            self.scroll[0] += (self.player.rect().centerx - self.screen.get_width()/2 - self.scroll[0])/15
-            self.scroll[1] += (self.player.rect().centery - self.screen.get_height()/2 - self.scroll[1])/15
+            self.scroll[0] += (self.player.rect().centerx - self.screen.get_width()/2 - self.scroll[0])/7
+            self.scroll[1] += (self.player.rect().centery - self.screen.get_height()/2 - self.scroll[1])/7
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
 
             self.screen.blit(self.assets['background'])
@@ -60,24 +61,37 @@ class Game:
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
-                        self.movement[0] = True
+                        self.movement_x[0] = True
                     if event.key == pygame.K_RIGHT:
-                        self.movement[1] = True
-                    if (event.key == pygame.K_z or event.key == pygame.K_UP):
+                        self.movement_x[1] = True
+                    if event.key == pygame.K_UP:
+                        self.movement_y[0] = True
+                    if event.key == pygame.K_DOWN:
+                        self.player.velocity[1] +=0.3
+                        self.movement_y[1] = True
+
+                    if event.key == pygame.K_z:
                         self.player.jump_grace = 5
                     if event.key == pygame.K_r:
                         self.player.pos = [160, 0]
                         self.player.velocity = [0, 0]
+                    if event.key == pygame.K_x:
+                        self.player.dash(self.movement_x[1] - self.movement_x[0], self.movement_y[1] - self.movement_y[0])
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
-                        self.movement[0] = False
+                        self.movement_x[0] = False
                     if event.key == pygame.K_RIGHT:
-                        self.movement[1] = False
-                    if (event.key == pygame.K_z or event.key == pygame.K_UP)  and self.player.velocity[1] < -1:
+                        self.movement_x[1] = False
+                    if event.key == pygame.K_UP:
+                        self.movement_y[0] = False
+                    if event.key == pygame.K_DOWN:
+                        self.movement_y[1] = False
+
+                    if event.key == pygame.K_z and self.player.velocity[1] < -1:
                          self.player.velocity[1] = -1
 
-            self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
+            self.player.update(self.tilemap, (self.movement_x[1] - self.movement_x[0], 0))
             self.player.render(self.screen, render_scroll)
             
             self.display.blit(pygame.transform.scale(self.screen, self.display.get_size()), (0, 0))
