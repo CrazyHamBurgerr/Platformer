@@ -38,13 +38,17 @@ class Game:
         self.clouds = Clouds(self.assets['clouds'], 16)
         
         self.tilemap = Tilemap(self, 16)
+        try:
+            self.tilemap.load('map.json')
+        except FileNotFoundError:
+            pass
         print("game launched")
         
     def run(self):
         while True:
 
-            self.scroll[0] += (self.player.rect().centerx - self.screen.get_width()/2 - self.scroll[0])/7
-            self.scroll[1] += (self.player.rect().centery - self.screen.get_height()/2 - self.scroll[1])/7
+            self.scroll[0] += (self.player.rect().centerx - self.screen.get_width()/2 - self.scroll[0])/8
+            self.scroll[1] += (self.player.rect().centery - self.screen.get_height()/2 - self.scroll[1])/8
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
 
             self.screen.blit(self.assets['background'])
@@ -90,7 +94,7 @@ class Game:
                         self.movement_y[1] = False
                         self.player.maximum_fall_velocity = 6
 
-                    if event.key == pygame.K_z and self.player.velocity[1] < -1:
+                    if event.key == pygame.K_z and self.player.velocity[1] < -1 and self.player.can_dash:
                          self.player.velocity[1] = -1
 
             self.player.update(self.tilemap, (self.movement_x[1] - self.movement_x[0], 0))

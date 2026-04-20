@@ -8,7 +8,7 @@ RENDER_SCALE = 2.0
 
 class Editor:
     def __init__(self):
-        print("started launching game")
+        print("started launching editor")
         pygame.init()
         
         print("creating window and variables")
@@ -31,6 +31,11 @@ class Editor:
         } #loads assets
         
         self.tilemap = Tilemap(self, 16)
+        try:
+            self.tilemap.load('map.json')
+        except FileNotFoundError:
+            pass
+
         self.tile_list = list(self.assets)
         self.tile_group = 0
         self.tile_variant = 0
@@ -50,8 +55,10 @@ class Editor:
             self.scroll[1] += (self.movement_y[1] - self.movement_y[0]) * (3 + self.shift * 5)
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
 
+            self.tilemap.render(self.screen, render_scroll)
             current_tile_img = self.assets[self.tile_list[self.tile_group]][self.tile_variant].copy()
             current_tile_img.set_alpha(100)
+            self.screen.blit(current_tile_img, (5, 5))
 
             mouse_pos = pygame.mouse.get_pos()
             mouse_pos = (mouse_pos[0] / RENDER_SCALE, mouse_pos[1] / RENDER_SCALE)
@@ -120,6 +127,10 @@ class Editor:
                         self.ongrid = not self.ongrid
                     if event.key == pygame.K_LSHIFT:
                         self.shift = True
+                    if event.key == pygame.K_o:
+                        self.tilemap.save('map.json')
+                    if event.key == pygame.K_t:
+                        self.tilemap.autotile()
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
@@ -133,7 +144,6 @@ class Editor:
                     if event.key == pygame.K_LSHIFT:
                         self.shift = False
             
-            self.tilemap.render(self.screen, render_scroll)
             self.display.blit(pygame.transform.scale(self.screen, self.display.get_size()), (0, 0))
             pygame.display.update()
             

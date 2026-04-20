@@ -45,7 +45,7 @@ class PhysicsEntity:
         if self.collisions['right'] or self.collisions['left']:
             self.velocity[0] = 0
         
-        self.velocity[1] = min(fall_velocity, self.velocity[1]+0.2)
+        self.velocity[1] = min(fall_velocity, self.velocity[1] + 0.2)
 
         if self.collisions['down'] or self.collisions['up']:
             self.velocity[1] = 0
@@ -67,9 +67,12 @@ class Player(PhysicsEntity):
         super().update(tilemap, movement, self.maximum_fall_velocity)
 
         if self.velocity[0] * movement[0] < 0:
-            self.velocity[0] += movement[0]*0.4
-        elif self.velocity[0] < 1.5 and self.velocity[0] > -1.5:
-            self.velocity[0] += movement[0]*0.5
+            self.velocity[0] += movement[0] * 0.4
+        elif self.velocity[0] < 1.6 and self.velocity[0] > -1.6:
+            if movement[0] == 1:
+                self.velocity[0] = max(self.velocity[0] + movement[0] * 0.5, 1.6)
+            elif movement[0] == -1:
+                self.velocity[0] = min(self.velocity[0] + movement[0] * 0.5, -1.6)
         
         self.friction(movement)
         
@@ -91,13 +94,12 @@ class Player(PhysicsEntity):
             self.air_time = 0
             self.can_dash = True
         
-
     def friction(self, movement): #slows player if on the ground not holding movement direction
         friction = 0
         if self.air_time < 4 and self.friction_time < 1:
-            friction = 0.133*abs(self.velocity[0])
+            friction = 0.1
         elif abs(self.velocity[0]) > 20:
-            friction = 0.2
+            friction = 0.5 * abs(self.velocity[0]) / 10
         elif self.velocity[0] * movement[0] <= 0: 
             friction = 0.05
         
