@@ -68,6 +68,7 @@ class Game:
                         self.movement_y[0] = True
                     if event.key == pygame.K_DOWN:
                         self.player.velocity[1] +=0.3
+                        self.player.maximum_fall_velocity = 9
                         self.movement_y[1] = True
 
                     if event.key == pygame.K_z:
@@ -87,6 +88,7 @@ class Game:
                         self.movement_y[0] = False
                     if event.key == pygame.K_DOWN:
                         self.movement_y[1] = False
+                        self.player.maximum_fall_velocity = 6
 
                     if event.key == pygame.K_z and self.player.velocity[1] < -1:
                          self.player.velocity[1] = -1

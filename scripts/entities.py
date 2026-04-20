@@ -11,7 +11,7 @@ class PhysicsEntity:
     def rect(self):
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
 
-    def update(self, tilemap, movement=(0,0)):
+    def update(self, tilemap, movement=(0,0), fall_velocity = 6):
         self.collisions = {'up': False, 'down': False, 'left': False, 'right': False}
         
         frame_movement = ((movement[0] + self.velocity[0])*1.1, movement[1] + self.velocity [1])
@@ -45,7 +45,7 @@ class PhysicsEntity:
         if self.collisions['right'] or self.collisions['left']:
             self.velocity[0] = 0
         
-        self.velocity[1] = min(6, self.velocity[1]+0.2)
+        self.velocity[1] = min(fall_velocity, self.velocity[1]+0.2)
 
         if self.collisions['down'] or self.collisions['up']:
             self.velocity[1] = 0
@@ -61,12 +61,13 @@ class Player(PhysicsEntity):
         self.wall_jump_grace = 0
         self.right_wall= False # is the character on the right wall
         self.can_dash = False
+        self.maximum_fall_velocity = 6
     
     def update(self, tilemap, movement=(0,0)):
-        super().update(tilemap, movement)
+        super().update(tilemap, movement, self.maximum_fall_velocity)
 
         if self.velocity[0] * movement[0] < 0:
-            self.velocity[0] += movement[0]*0.2
+            self.velocity[0] += movement[0]*0.4
         elif self.velocity[0] < 1.5 and self.velocity[0] > -1.5:
             self.velocity[0] += movement[0]*0.5
         
@@ -77,7 +78,6 @@ class Player(PhysicsEntity):
             self.jump(movement)
         
         self.wall_jump_grace -=1
-        self.wall_slide = False
         if self.collisions['right'] or self.collisions['left']:
             self.wall_jump_grace = 7
             self.velocity[1] = min(1.5, self.velocity[1])
@@ -89,19 +89,21 @@ class Player(PhysicsEntity):
         self.air_time += 1
         if self.collisions['down']: #checks if player is grounded and resets air time (important for jump forgiveness) and the ability to dash
             self.air_time = 0
-            if self.friction_time < 0:
-                self.can_dash = True
+            self.can_dash = True
         
 
     def friction(self, movement): #slows player if on the ground not holding movement direction
         friction = 0
-        if self.velocity[0] * movement[0] <= 0 or abs(self.velocity[0]) > 20: 
-            friction = 0.2
         if self.air_time < 4 and self.friction_time < 1:
             friction = 0.133*abs(self.velocity[0])
-        self.friction_time -= 1
-
+        elif abs(self.velocity[0]) > 20:
+            friction = 0.2
+        elif self.velocity[0] * movement[0] <= 0: 
+            friction = 0.05
         
+        if self.air_time < 4:
+            self.friction_time -= 1
+
         if self.velocity[0] > friction:
             self.velocity[0] -= friction
         elif self.velocity[0] < -friction:
@@ -124,13 +126,12 @@ class Player(PhysicsEntity):
                 if movement[0] == -1:
                     self.velocity[0] = 4
         
-    
     def dash(self, move_x, move_y):
         if self.can_dash and (move_x != 0 or move_y != 0):
             self.velocity[0] += move_x*3
             self.velocity[1] = move_y*5
             self.can_dash = False
-            self.friction_time = 12
+            self.friction_time = 7
 
     def render(self, surface, offset = (0, 0)):
         if abs(self.velocity[1]) > 0.61:
