@@ -1,10 +1,12 @@
 import sys
 import pygame
+import time
 
 from scripts.entities import PhysicsEntity, Player
 from scripts.utils import load_image, load_images
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
+from scripts.scoreboard import ScoreBoard
 
 class Game:
     def __init__(self):
@@ -42,6 +44,9 @@ class Game:
             self.tilemap.load('map.json')
         except FileNotFoundError:
             pass
+
+        self.score_board = ScoreBoard()
+        self.score_board.print()
         print("game launched")
         
     def run(self):
@@ -60,6 +65,7 @@ class Game:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    self.score_board.save()
                     pygame.quit()
                     sys.exit()
 
@@ -80,6 +86,7 @@ class Game:
                     if event.key == pygame.K_r:
                         self.player.pos = [160, 0]
                         self.player.velocity = [0, 0]
+                        self.score_board.new_entry(69, int(time.time()))
                     if event.key == pygame.K_x:
                         self.player.dash(self.movement_x[1] - self.movement_x[0], self.movement_y[1] - self.movement_y[0])
 
