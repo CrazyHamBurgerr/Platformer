@@ -39,6 +39,20 @@ class Tilemap:
                 tiles.append(self.tilemap[check_loc])
         return tiles
     
+    def deadly_rects_around(self, pos):
+        rects = []
+        for tile in self.tiles_around(pos):
+            if tile['type'] == 'decor' and tile['variant'] == 4:
+                rects.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, self.tile_size))
+        return rects
+
+    def goal_rects_around(self, pos):
+        rects = []
+        for tile in self.tiles_around(pos):
+            if tile['type'] == 'decor' and tile['variant'] == 5:
+                rects.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, self.tile_size))
+        return rects
+
     def physics_rects_around(self, pos):
         rects = []
         for tile in self.tiles_around(pos):
@@ -63,13 +77,16 @@ class Tilemap:
         file.close()
 
     def load(self, path):
-        file = open(path, 'r')
-        map_data = json.load(file)
-        file.close()
+        try:
+            file = open(path, 'r')
+            map_data = json.load(file)
+            file.close()
 
-        self.tilemap = map_data['tilemap']
-        self.tile_size = map_data['tile_size']
-        self.offgrid_tiles = map_data['offgrid']
+            self.tilemap = map_data['tilemap']
+            self.tile_size = map_data['tile_size']
+            self.offgrid_tiles = map_data['offgrid']
+        except FileNotFoundError:
+            pass
 
     def autotile(self):
         for loc in self.tilemap:

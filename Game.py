@@ -1,6 +1,7 @@
 import sys
 import pygame
 import time
+import datetime
 
 from scripts.entities import PhysicsEntity, Player
 from scripts.utils import load_image, load_images
@@ -21,7 +22,6 @@ class Game:
         self.clock = pygame.time.Clock()
         self.movement_x = [False, False]
         self.movement_y = [False, False]
-        self.scroll = [0, 0]
 
         print("loading assets")
         self.assets = {
@@ -40,18 +40,25 @@ class Game:
         self.clouds = Clouds(self.assets['clouds'], 16)
         
         self.tilemap = Tilemap(self, 16)
-        try:
-            self.tilemap.load('map.json')
-        except FileNotFoundError:
-            pass
+        self.load_level(0)
 
         self.score_board = ScoreBoard()
-        self.score_board.print()
+        #self.score_board.print()
         print("game launched")
+        pygame.font.init()
+        self.font = pygame.font.SysFont('Comic Sans MS', 15)
+
+    def load_level(self, map_id):
+        self.player.pos = [160, 0]
+        self.player.velocity = [0, 0]
+        self.tilemap.load('data/maps/' + str(map_id) + '.json')
+        self.scroll = [0, 0]
+        self.player.dead = 0
+        self.transition = 0
+        self.starting_time = int(time.time())
         
     def run(self):
         while True:
-
             self.scroll[0] += (self.player.rect().centerx - self.screen.get_width()/2 - self.scroll[0])/8
             self.scroll[1] += (self.player.rect().centery - self.screen.get_height()/2 - self.scroll[1])/8
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
@@ -62,6 +69,13 @@ class Game:
             self.clouds.render(self.screen, render_scroll)
 
             self.tilemap.render(self.screen, render_scroll)
+
+            if self.player.dead:
+                self.player.dead += 1
+                self.transition += 4
+                pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(0, 0, 320, self.transition))
+                if self.player.dead > 70:
+                    self.load_level(0)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -84,9 +98,8 @@ class Game:
                     if event.key == pygame.K_z:
                         self.player.jump_grace = 5
                     if event.key == pygame.K_r:
-                        self.player.pos = [160, 0]
-                        self.player.velocity = [0, 0]
-                        self.score_board.new_entry(69, int(time.time()))
+                        self.player.dead = 1
+
                     if event.key == pygame.K_x:
                         self.player.dash(self.movement_x[1] - self.movement_x[0], self.movement_y[1] - self.movement_y[0])
 
@@ -104,9 +117,21 @@ class Game:
                     if event.key == pygame.K_z and self.player.velocity[1] < -1 and self.player.can_dash:
                          self.player.velocity[1] = -1
 
-            self.player.update(self.tilemap, (self.movement_x[1] - self.movement_x[0], 0))
-            self.player.render(self.screen, render_scroll)
+            if not self.player.dead:
+                current_time = int(time.time())
+
+                if self.player.update(self.tilemap, self.score_board, (self.movement_x[1] - self.movement_x[0], 0)):
+                    print(f"goal! score: {100 + self.starting_time - current_time}, time taken: {current_time - self.starting_time},",
+                          f"date: {datetime.datetime.fromtimestamp(current_time)} ")
+                    self.score_board.new_entry(100 + self.starting_time - current_time, current_time)
+                    self.player.dead = 1
+                self.player.render(self.screen, render_scroll)
             
+                timer = self.font.render(str(100 + self.starting_time - current_time), False, 'purple')
+                self.screen.blit(timer, (5, 5))
+                if current_time - self.starting_time == 100:
+                    self.load_level(0)
+
             self.display.blit(pygame.transform.scale(self.screen, self.display.get_size()), (0, 0))
             
             pygame.display.update()

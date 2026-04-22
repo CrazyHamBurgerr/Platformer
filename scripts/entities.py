@@ -17,30 +17,30 @@ class PhysicsEntity:
         frame_movement = ((movement[0] + self.velocity[0])*1.1, movement[1] + self.velocity [1])
 
         self.pos[0] += frame_movement[0]
-        entity_rect = self.rect()
+        self.entity_rect = self.rect()
         
         for rect in tilemap.physics_rects_around(self.pos):
-            if entity_rect.colliderect(rect):
+            if self.entity_rect.colliderect(rect):
                 if frame_movement[0] > 0:
-                    entity_rect.right = rect.left
+                    self.entity_rect.right = rect.left
                     self.collisions['right'] = True
                 if frame_movement[0] < 0:
-                    entity_rect.left = rect.right
+                    self.entity_rect.left = rect.right
                     self.collisions['left'] = True
-                self.pos[0] = entity_rect.x
+                self.pos[0] = self.entity_rect.x
 
         self.pos[1] += frame_movement[1]
-        entity_rect = self.rect()
+        self.entity_rect = self.rect()
 
         for rect in tilemap.physics_rects_around(self.pos):
-            if entity_rect.colliderect(rect):
+            if self.entity_rect.colliderect(rect):
                 if frame_movement[1] > 0:
-                    entity_rect.bottom = rect.top
+                    self.entity_rect.bottom = rect.top
                     self.collisions['down'] = True
                 if frame_movement[1] < 0:
-                    entity_rect.top = rect.bottom
+                    self.entity_rect.top = rect.bottom
                     self.collisions['up'] = True
-                self.pos[1] = entity_rect.y
+                self.pos[1] = self.entity_rect.y
 
         if self.collisions['right'] or self.collisions['left']:
             self.velocity[0] = 0
@@ -62,9 +62,12 @@ class Player(PhysicsEntity):
         self.right_wall= False # is the character on the right wall
         self.can_dash = False
         self.maximum_fall_velocity = 6
+        self.dead = 0
     
-    def update(self, tilemap, movement=(0,0)):
+    def update(self, tilemap, scoreboard, movement=(0,0)):
         super().update(tilemap, movement, self.maximum_fall_velocity)
+
+        self.force_restart_check(tilemap)
 
         if self.velocity[0] * movement[0] < 0:
             self.velocity[0] += movement[0] * 0.4
@@ -77,10 +80,10 @@ class Player(PhysicsEntity):
         self.friction(movement)
         
         if self.jump_grace > 0:
-            self.jump_grace -= 1
+            self.jump_grace = max (0, self.jump_grace - 1)
             self.jump(movement)
         
-        self.wall_jump_grace -=1
+        self.wall_jump_grace = max(0, self.wall_jump_grace - 1)
         if self.collisions['right'] or self.collisions['left']:
             self.wall_jump_grace = 7
             self.velocity[1] = min(1.5, self.velocity[1])
@@ -93,6 +96,8 @@ class Player(PhysicsEntity):
         if self.collisions['down']: #checks if player is grounded and resets air time (important for jump forgiveness) and the ability to dash
             self.air_time = 0
             self.can_dash = True
+
+        return self.goal_check(tilemap)
         
     def friction(self, movement): #slows player if on the ground not holding movement direction
         friction = 0
@@ -104,7 +109,7 @@ class Player(PhysicsEntity):
             friction = 0.05
         
         if self.air_time < 4:
-            self.friction_time -= 1
+            self.friction_time = max(0, self.friction_time - 1)
 
         if self.velocity[0] > friction:
             self.velocity[0] -= friction
@@ -130,8 +135,11 @@ class Player(PhysicsEntity):
         
     def dash(self, move_x, move_y):
         if self.can_dash and (move_x != 0 or move_y != 0):
-            self.velocity[0] += move_x*3
-            self.velocity[1] = move_y*5
+            if move_y * self.velocity[1] > 0 and abs(self.velocity[1]) > 2 and move_x == 0:
+                self.velocity[1] += move_y * 3
+            else:
+                self.velocity[1] = move_y * 5
+            self.velocity[0] += move_x * 3
             self.can_dash = False
             self.friction_time = 7
 
@@ -151,4 +159,17 @@ class Player(PhysicsEntity):
         if self.can_dash == False:
             colour = (70, 140, 0)
         pygame.draw.rect(surface, colour, pygame.Rect(self.pos[0] + offset_x - offset[0], self.pos[1] + offset_y - offset[1], self.size[0] * scale, self.size[1] / scale))
-        
+    
+    def force_restart_check(self, tilemap):
+        for rect in tilemap.deadly_rects_around(self.pos):
+            if self.entity_rect.colliderect(rect):
+                self.dead = 1
+    
+    def goal_check(self, tilemap):
+        for rect in tilemap.goal_rects_around(self.pos):
+            if self.entity_rect.colliderect(rect):
+                return True
+            else:
+                return False
+        else:
+            return False

@@ -31,10 +31,7 @@ class Editor:
         } #loads assets
         
         self.tilemap = Tilemap(self, 16)
-        try:
-            self.tilemap.load('map.json')
-        except FileNotFoundError:
-            pass
+        self.load_level(0)
 
         self.tile_list = list(self.assets)
         self.tile_group = 0
@@ -46,7 +43,10 @@ class Editor:
         self.ongrid = True
 
         print("editor launched")
-        
+    
+    def load_level(self, map_id):
+        self.tilemap.load('data/maps/' + str(map_id) + '.json')
+
     def run(self):
         while True:
             self.screen.fill((18, 18, 18))
@@ -128,7 +128,7 @@ class Editor:
                     if event.key == pygame.K_LSHIFT:
                         self.shift = True
                     if event.key == pygame.K_o:
-                        self.tilemap.save('map.json')
+                        self.tilemap.save('data/maps/0.json')
                     if event.key == pygame.K_t:
                         self.tilemap.autotile()
 
