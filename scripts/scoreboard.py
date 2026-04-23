@@ -42,6 +42,7 @@ class ScoreBoard:
         temp_list = sorted(temp_list, key=lambda dict: dict['score'], reverse = True)
         for i in range(len(temp_list)):
             self.__score[str(i+1)] = temp_list[i]
+        del temp_list
     
     def delete_entry(self, position):
         try:

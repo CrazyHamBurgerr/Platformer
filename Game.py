@@ -56,6 +56,7 @@ class Game:
         self.player.dead = 0
         self.transition = 0
         self.starting_time = int(time.time())
+        self.iris_pos = (245, 185)
         
     def run(self):
         while True:
@@ -64,6 +65,9 @@ class Game:
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
 
             self.screen.blit(self.assets['background'])
+            pygame.draw.circle(self.screen, (255, 255, 255), 
+                               (self.iris_pos[0] - (self.iris_pos[0] - self.player.pos[0] + render_scroll[0]) / 30, 
+                                self.iris_pos[1] - (self.iris_pos[1] - self.player.pos[1] + render_scroll[1]) / 60), 15, 1)
 
             self.clouds.update()
             self.clouds.render(self.screen, render_scroll)
@@ -73,8 +77,10 @@ class Game:
             if self.player.dead:
                 self.player.dead += 1
                 self.transition += 4
-                pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(0, 0, 320, self.transition))
+                pygame.draw.rect(self.screen, (0 + self.player.dead, 0, 0 + self.player.dead), pygame.Rect(0, 0, 320, self.transition))
                 if self.player.dead > 70:
+                    self.screen.blit(self.assets['decor'][5], (152, 112))
+                if self.player.dead > 120:
                     self.load_level(0)
 
             for event in pygame.event.get():
@@ -101,7 +107,8 @@ class Game:
                         self.player.dead = 1
 
                     if event.key == pygame.K_x:
-                        self.player.dash(self.movement_x[1] - self.movement_x[0], self.movement_y[1] - self.movement_y[0])
+                        self.player.dash(self.movement_x[1] - self.movement_x[0], 
+                                         self.movement_y[1] - self.movement_y[0])
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
@@ -121,8 +128,9 @@ class Game:
                 current_time = int(time.time())
 
                 if self.player.update(self.tilemap, self.score_board, (self.movement_x[1] - self.movement_x[0], 0)):
-                    print(f"goal! score: {100 + self.starting_time - current_time}, time taken: {current_time - self.starting_time},",
-                          f"date: {datetime.datetime.fromtimestamp(current_time)} ")
+                    print(f"goal! score: {100 + self.starting_time - current_time}", 
+                          f"time taken: {current_time - self.starting_time},",
+                          f"date: {datetime.datetime.fromtimestamp(current_time)}")
                     self.score_board.new_entry(100 + self.starting_time - current_time, current_time)
                     self.player.dead = 1
                 self.player.render(self.screen, render_scroll)

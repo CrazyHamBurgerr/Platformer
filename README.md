@@ -1,3 +1,3 @@
 # Platformer
-simple platformer game
+simple platformer game  
 got walljumping and shi
