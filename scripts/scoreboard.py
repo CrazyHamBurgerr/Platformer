@@ -21,7 +21,8 @@ class ScoreBoard:
         
     def print(self):
         for i in self.__score:
-            print(f"{i:2}", f"{self.__score[str(i)]['score']: 5d}", datetime.datetime.fromtimestamp(self.__score[str(i)]['timestamp']))
+            print(f"{i:2}", f"{self.__score[str(i)]['score']: 5d}", 
+                  datetime.datetime.fromtimestamp(self.__score[str(i)]['timestamp']))
 
     def new_entry(self, new_score, timestamp):
         self.__score[str(len(self.__score)+1)] = {"score": new_score, "timestamp": timestamp}

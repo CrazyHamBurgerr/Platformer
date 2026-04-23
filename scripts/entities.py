@@ -158,7 +158,9 @@ class Player(PhysicsEntity):
         colour = (100, 200, 0)
         if self.can_dash == False:
             colour = (70, 140, 0)
-        pygame.draw.rect(surface, colour, pygame.Rect(self.pos[0] + offset_x - offset[0], self.pos[1] + offset_y - offset[1], self.size[0] * scale, self.size[1] / scale))
+        pygame.draw.rect(surface, colour, pygame.Rect(self.pos[0] + offset_x - offset[0], 
+                                                      self.pos[1] + offset_y - offset[1], 
+                                                      self.size[0] * scale, self.size[1] / scale))
     
     def force_restart_check(self, tilemap):
         for rect in tilemap.deadly_rects_around(self.pos):

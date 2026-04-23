@@ -38,10 +38,13 @@ class Game:
 
         print("creating clouds")
         self.clouds = Clouds(self.assets['clouds'], 16)
+        self.iris_pos = (245, 185)
         
+        print("loading level")
         self.tilemap = Tilemap(self, 16)
         self.load_level(0)
 
+        self.score = 6000
         self.score_board = ScoreBoard()
         #self.score_board.print()
         print("game launched")
@@ -56,12 +59,12 @@ class Game:
         self.player.dead = 0
         self.transition = 0
         self.starting_time = int(time.time())
-        self.iris_pos = (245, 185)
+        self.score = 6000
         
     def run(self):
         while True:
-            self.scroll[0] += (self.player.rect().centerx - self.screen.get_width()/2 - self.scroll[0])/8
-            self.scroll[1] += (self.player.rect().centery - self.screen.get_height()/2 - self.scroll[1])/8
+            self.scroll[0] += (self.player.rect().centerx - self.screen.get_width() / 2 - self.scroll[0]) / 8
+            self.scroll[1] += (self.player.rect().centery - self.screen.get_height() / 2 - self.scroll[1]) / 8
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
 
             self.screen.blit(self.assets['background'])
@@ -77,8 +80,9 @@ class Game:
             if self.player.dead:
                 self.player.dead += 1
                 self.transition += 4
-                pygame.draw.rect(self.screen, (0 + self.player.dead, 0, 0 + self.player.dead), pygame.Rect(0, 0, 320, self.transition))
-                if self.player.dead > 70:
+                pygame.draw.rect(self.screen, (0 + self.player.dead, 0, 0 + self.player.dead), 
+                                 pygame.Rect(0, 0, 320, self.transition))
+                if self.player.dead > 60:
                     self.screen.blit(self.assets['decor'][5], (152, 112))
                 if self.player.dead > 120:
                     self.load_level(0)
@@ -97,7 +101,7 @@ class Game:
                     if event.key == pygame.K_UP:
                         self.movement_y[0] = True
                     if event.key == pygame.K_DOWN:
-                        self.player.velocity[1] +=0.3
+                        self.player.velocity[1] += 0.3
                         self.player.maximum_fall_velocity = 9
                         self.movement_y[1] = True
 
@@ -105,6 +109,9 @@ class Game:
                         self.player.jump_grace = 5
                     if event.key == pygame.K_r:
                         self.player.dead = 1
+                    if event.key == pygame.K_p:
+                        self.score_board.sort()
+                        self.score_board.print()
 
                     if event.key == pygame.K_x:
                         self.player.dash(self.movement_x[1] - self.movement_x[0], 
@@ -128,10 +135,10 @@ class Game:
                 current_time = int(time.time())
 
                 if self.player.update(self.tilemap, self.score_board, (self.movement_x[1] - self.movement_x[0], 0)):
-                    print(f"goal! score: {100 + self.starting_time - current_time}", 
+                    print(f"goal! score: {self.score}", 
                           f"time taken: {current_time - self.starting_time},",
                           f"date: {datetime.datetime.fromtimestamp(current_time)}")
-                    self.score_board.new_entry(100 + self.starting_time - current_time, current_time)
+                    self.score_board.new_entry(self.score, current_time)
                     self.player.dead = 1
                 self.player.render(self.screen, render_scroll)
             
@@ -141,6 +148,7 @@ class Game:
                     self.load_level(0)
 
             self.display.blit(pygame.transform.scale(self.screen, self.display.get_size()), (0, 0))
+            self.score -= 1
             
             pygame.display.update()
             
