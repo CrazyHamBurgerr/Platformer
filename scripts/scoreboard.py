@@ -4,15 +4,15 @@ import datetime
 class ScoreBoard:
     instance = None
 
-    def __new__(cls):
+    def __new__(cls, name):
         if cls.instance is None:
             cls.instance = super().__new__(cls)
         return cls.instance
     
-    def __init__(self):
+    def __init__(self, name):
         self.__score = {}
         try:
-            file = open('score.json', 'r')
+            file = open(name, 'r')
             score_data = json.load(file)
             file.close()
             self.__score = score_data['score']
@@ -26,6 +26,10 @@ class ScoreBoard:
 
     def new_entry(self, new_score, timestamp):
         self.__score[str(len(self.__score)+1)] = {"score": new_score, "timestamp": timestamp}
+    
+    def return_entry(self, position):
+        if self.check_valid_position(position):
+            return self.__score[str(position)]
 
     def save(self):
         self.sort()
@@ -46,12 +50,21 @@ class ScoreBoard:
         del temp_list
     
     def delete_entry(self, position):
+        if self.check_valid_position(position):
+            del self.__score[str(position)]
+            print(f"entry {position} deleted")
+
+    def check_valid_position(self, position):
         try:
             position = int(position)
             if position > 0 and position < len(self.__score) + 1:
-                del self.__score[str(position)]
-                print(f"entry {position} deleted")
+                return True
             else:
-                print("input position is not positive or too large")
-        except:
-            print(f"incorrect input, correct input is an interger between 1 and {len(self.__score)+1}")
+                print(f"input position is not positive or too large, valid positions are ints between 1 and {len(self.__score)}")
+                return False
+        except TypeError:
+            print(f"incorrect input type")
+            return False
+        
+s = ScoreBoard('score.json')
+print(s.return_entry(2))

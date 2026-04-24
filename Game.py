@@ -1,4 +1,3 @@
-import sys
 import pygame
 import time
 import datetime
@@ -46,7 +45,7 @@ class Game:
         self.load_level(0)
 
         self.score = 6000
-        self.score_board = ScoreBoard()
+        self.score_board = ScoreBoard('score.json')
 
         print("game launched")
         pygame.font.init()
