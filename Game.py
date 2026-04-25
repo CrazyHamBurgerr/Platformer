@@ -44,7 +44,6 @@ class Game:
         self.tilemap = Tilemap(self, 16)
         self.load_level(0)
 
-        self.score = 6000
         self.score_board = ScoreBoard('score.json')
 
         print("game launched")

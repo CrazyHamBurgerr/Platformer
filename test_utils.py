@@ -2,7 +2,13 @@ from scripts.utils import load_image
 import unittest
 import pygame
 
+# running this test will load a pygame window as it's required for image loading
+
 class TestLoadImageFunction(unittest.TestCase):
+    def setUp(self):
+        pygame.display.set_caption("utils test")
+        pygame.display.set_mode((320, 240))
+
     def test_invalid_file_path(self):
         self.assertRaises(FileNotFoundError, load_image, 'gabagool')
 
@@ -16,7 +22,6 @@ class TestLoadImageFunction(unittest.TestCase):
         self.assertRaises(TypeError, load_image, True)
     
     def test_valid_file(self):
-        pygame.display.set_mode((0, 0))
         self.assertTrue(load_image('background.png'))
 
 if __name__ == '__main__':
