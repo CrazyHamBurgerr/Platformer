@@ -2,9 +2,9 @@
 
 ## Introduction  
 
-The goal of this coursework is to make a simple platformer game and utilising concepts learnt during lectures, so the 4 OOP pillars design patterns, PEP8 style guidelines and in addition to this git and github as well as work with files.  
+The goal of this coursework is to make a simple platformer game and utilising concepts learnt during lectures, so the 4 OOP pillars, design patterns, PEP8 style guidelines as well as unit testing and in addition to this git and github as well as work with files.  
 My topic for this coursework is a platformer game. In leau of this it has simple platformer features, such as forgiveness on precise jump inputs and input buffering for jumps, a walljump and a dash with some exceptions that function as intentional features.  
-The coursework also features a level editor along with the game, to start either one needs to compile the editor.py or game.py files respectively and oh course have python and the pygame library installed in their system.  
+The coursework also features a level editor along with the game, to start either one needs to compile the editor.py or game.py files respectively and of course have python and the pygame library installed in their system.  
 The controls for the game are as follows: arrow keys to move horizontaly, jump is z, dash is x and reads arrow keys for dash direction, r resets the character, p prints the current scoreboard in the terminal or console.  
 The controls for the editor are as follows: wasd to move the camera, left shift increases the camera move speed, left mouse click places a tile, right click deletes a tile, to select tile group one uses the mouse scrollwheel, to select the variant hold left shift while using the mousewheel. Additionaly to place tiles not on the grid (e.g. large decor tiles), press g, pressing g again will set the tile placement to the grid.
 
@@ -60,6 +60,15 @@ It is utilised in two places in the coursework, in both dictionaries are stored 
 
 It is needed for code to be standardised and written in an easily readable way.  
 This coursework follows PEP8 style guidelines, e.g. using Pascal case for classes and snake case for methods and variables, limiting the line length in longer commands (mostly when working with positional arguments).
+
+### Unit testing
+
+Unit testing is used to test simple methods or functions and show how code could be utilised.  
+In this coursework there are 3 test files for a script each. The main one is test_scoreboard.py in which both valid and invalid inputs are tested for most methods and checking the singleton design pattern as well as sorting by using a mock scoreboard with predetermined and unsorted values.
+
+<img width="434" height="186" alt="image" src="https://github.com/user-attachments/assets/235b7fcf-932b-41fa-8b29-2c6ca5af2f7a" />
+
+<img width="697" height="336" alt="image" src="https://github.com/user-attachments/assets/609cb219-d2c2-4f6d-bac6-b8eefd4d206f" />
 
 ## Results
 
